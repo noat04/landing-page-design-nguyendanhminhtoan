@@ -1,6 +1,8 @@
-export const bannerImage = '/iphone.png'
+export const bannerImage = '/iphone.webp'
 
-export const productFilmUrl = 'https://www.youtube.com/embed/xi2txaHwFN8?rel=0&modestbranding=1'
+export const bannerFallbackImage = '/iphone.png'
+
+export const productFilmId = 'xi2txaHwFN8'
 
 export const features = [
   {

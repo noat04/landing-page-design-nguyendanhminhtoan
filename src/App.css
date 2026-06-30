@@ -422,6 +422,14 @@ h3 {
   pointer-events: none;
 }
 
+.hero-banner-picture {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .hero-banner {
   position: relative;
   z-index: 1;

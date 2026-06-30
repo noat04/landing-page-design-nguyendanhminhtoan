@@ -11,7 +11,7 @@ import Signup from './components/Signup.jsx'
 import Specs from './components/Specs.jsx'
 import Story from './components/Story.jsx'
 import Toast from './components/Toast.jsx'
-import { bannerImage, features, productFilmUrl, specs, storyCards } from './data/landingData.js'
+import { bannerFallbackImage, bannerImage, features, productFilmId, specs, storyCards } from './data/landingData.js'
 import './App.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -156,8 +156,8 @@ function App() {
     <main className="app-shell">
       <Toast message={toast} />
       <Header theme={theme} onToggleTheme={toggleTheme} onTrackClick={trackClick} />
-      <Hero bannerImage={bannerImage} onTrackClick={trackClick} />
-      <ProductFilm productFilmUrl={productFilmUrl} />
+      <Hero bannerFallbackImage={bannerFallbackImage} bannerImage={bannerImage} onTrackClick={trackClick} />
+      <ProductFilm productFilmId={productFilmId} />
       <Features features={features} />
       <Specs specs={specs} />
       <Story storyCards={storyCards} />
