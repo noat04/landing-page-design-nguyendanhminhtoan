@@ -1,4 +1,7 @@
-export default function ProductFilm({ productFilmUrl }) {
+import LiteYouTubeEmbed from 'react-lite-youtube-embed'
+import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
+
+export default function ProductFilm({ productFilmId }) {
   return (
     <section id="product-film" className="film-section reveal">
       <div className="film-copy">
@@ -7,12 +10,11 @@ export default function ProductFilm({ productFilmUrl }) {
         <p>A responsive product video section for visitors who want the feature story before they register for updates.</p>
       </div>
       <div className="film-frame">
-        <iframe
-          src={productFilmUrl}
+        <LiteYouTubeEmbed
+          id={productFilmId}
           title="iPhone 18 Pro feature preview video"
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
+          lazyLoad
+          poster="maxresdefault"
         />
       </div>
     </section>

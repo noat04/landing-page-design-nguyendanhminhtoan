@@ -1,4 +1,6 @@
-export default function Hero({ bannerImage, onTrackClick }) {
+import OptimizedImage from './OptimizedImage.jsx'
+
+export default function Hero({ bannerFallbackImage, bannerImage, onTrackClick }) {
   return (
     <section id="top" className="hero-section">
       <div className="hero-copy">
@@ -31,12 +33,15 @@ export default function Hero({ bannerImage, onTrackClick }) {
 
       <div className="hero-visual" aria-label="iPhone 18 Pro product banner">
         <div className="hero-banner-wrap">
-          <img
+          <OptimizedImage
             className="hero-banner"
             src={bannerImage}
+            fallbackSrc={bannerFallbackImage}
             alt="iPhone 18 Pro landing page product banner"
-            loading="eager"
-            fetchPriority="high"
+            width="670"
+            height="377"
+            priority
+            sizes="(max-width: 720px) calc(100vw - 28px), (max-width: 1040px) 720px, 620px"
           />
         </div>
         <div className="hero-glow" />
