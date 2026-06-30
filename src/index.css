@@ -1,22 +1,23 @@
 @import "tailwindcss";
 
 html,
-body {
-  width: 100vw;
+body,
+#root {
+  min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background-color: black;
-  color: white;
 }
 
-@theme {
-  --color-white-50: #d9ecff;
-  --color-bule-100: #2d2d38;
-
+body {
+  background: #030405;
+  color: #f7f5f4;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-@layer utilities {
-  .flex-center {
-    @apply flex justify-center items-center;
-  }
+img,
+canvas,
+svg,
+video {
+  max-width: 100%;
 }
