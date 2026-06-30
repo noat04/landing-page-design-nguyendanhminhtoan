@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Nova X Pro</title>
+  <desc id="desc">Premium product landing page preview.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#030405"/>
+      <stop offset="0.5" stop-color="#17070c"/>
+      <stop offset="1" stop-color="#030405"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0a1ae"/>
+      <stop offset="0.45" stop-color="#9b2d42"/>
+      <stop offset="1" stop-color="#3d111b"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="915" cy="180" r="240" fill="#c94762" opacity="0.22" filter="url(#glow)"/>
+  <circle cx="190" cy="500" r="190" fill="#72d69a" opacity="0.08" filter="url(#glow)"/>
+  <g transform="translate(735 90) rotate(8)">
+    <rect x="0" y="0" width="285" height="455" rx="42" fill="url(#phone)" stroke="#f0a1ae" stroke-opacity="0.35" stroke-width="3"/>
+    <rect x="22" y="24" width="130" height="130" rx="24" fill="#8f2a3e" stroke="#f0a1ae" stroke-opacity="0.28"/>
+    <circle cx="64" cy="66" r="28" fill="#050608" stroke="#f3b1bc" stroke-opacity="0.45" stroke-width="7"/>
+    <circle cx="115" cy="107" r="28" fill="#050608" stroke="#f3b1bc" stroke-opacity="0.45" stroke-width="7"/>
+    <circle cx="63" cy="148" r="28" fill="#050608" stroke="#f3b1bc" stroke-opacity="0.45" stroke-width="7"/>
+    <circle cx="128" cy="60" r="13" fill="#f8f5f0"/>
+  </g>
+  <g fill="#f7f5f4">
+    <text x="88" y="150" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="5">INTRODUCING</text>
+    <text x="88" y="270" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="850">Nova X Pro</text>
+    <text x="88" y="360" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="750" fill="#f0a1ae">Pro. Beyond.</text>
+    <text x="92" y="430" font-family="Inter, Arial, sans-serif" font-size="28" fill="#c8c1c4">React + Three.js + GSAP landing experience</text>
+  </g>
+</svg>
