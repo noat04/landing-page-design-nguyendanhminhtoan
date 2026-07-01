@@ -1,8 +1,13 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import AuthPage from './components/AuthPage.jsx'
+import CartPage from './components/CartPage.jsx'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
+import LogoutPage from './components/LogoutPage.jsx'
+import ProductsPage from './components/ProductsPage.jsx'
 import Toast from './components/Toast.jsx'
 import { bannerFallbackImage, bannerImage, features, productFilmId, specs, storyCards } from './data/landingData.js'
+import { apiFetch } from './lib/api.js'
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -13,6 +18,29 @@ const ProofRow = lazy(() => import('./components/ProofRow.jsx'))
 const Signup = lazy(() => import('./components/Signup.jsx'))
 const Specs = lazy(() => import('./components/Specs.jsx'))
 const Story = lazy(() => import('./components/Story.jsx'))
+
+const commerceViews = new Set(['login', 'logout', 'products', 'cart'])
+
+function getViewFromLocation() {
+  const params = new URLSearchParams(window.location.search)
+  const view = params.get('view')
+
+  return commerceViews.has(view) ? view : 'home'
+}
+
+function setViewInUrl(view) {
+  const url = new URL(window.location.href)
+
+  if (view === 'home') {
+    url.searchParams.delete('view')
+    url.hash = 'top'
+  } else {
+    url.searchParams.set('view', view)
+    url.hash = ''
+  }
+
+  window.history.pushState({}, '', url)
+}
 
 function LazyWhenVisible({ children, minHeight = 360 }) {
   const placeholderRef = useRef(null)
@@ -93,8 +121,11 @@ function createBehaviorEvent(type, label, detail = {}) {
 }
 
 function App() {
+  const [currentView, setCurrentView] = useState(getViewFromLocation)
   const [theme, setTheme] = useState('dark')
   const [toast, setToast] = useState('Scroll to explore the story.')
+  const [user, setUser] = useState(null)
+  const [cartCount, setCartCount] = useState(0)
   const [form, setForm] = useState({ name: '', email: '' })
   const [formState, setFormState] = useState({ type: 'idle', message: '' })
   const behaviorEventsRef = useRef([])
@@ -104,6 +135,71 @@ function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  const navigate = useCallback((view) => {
+    setCurrentView(view)
+    setViewInUrl(view)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const refreshCartCount = useCallback(async () => {
+    try {
+      const data = await apiFetch('/api/cart')
+      setCartCount(data.totals?.totalItems || 0)
+    } catch {
+      setCartCount(0)
+    }
+  }, [])
+
+  const handleAuthSuccess = useCallback(
+    (nextUser) => {
+      setUser(nextUser)
+      setToast(`Xin chào ${nextUser.name || nextUser.email}.`)
+      refreshCartCount()
+    },
+    [refreshCartCount],
+  )
+
+  const handleLogout = useCallback(() => {
+    setUser(null)
+    setCartCount(0)
+    setToast('Bạn đã đăng xuất.')
+  }, [])
+
+  useEffect(() => {
+    const onPopState = () => {
+      setCurrentView(getViewFromLocation())
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+
+    const loadSession = async () => {
+      try {
+        const data = await apiFetch('/api/auth/me')
+
+        if (alive) {
+          setUser(data.user)
+          refreshCartCount()
+        }
+      } catch {
+        if (alive) {
+          setUser(null)
+          setCartCount(0)
+        }
+      }
+    }
+
+    loadSession()
+
+    return () => {
+      alive = false
+    }
+  }, [refreshCartCount])
 
   useEffect(() => {
     let ctx
@@ -319,28 +415,68 @@ function App() {
     }
   }
 
+  const renderCurrentView = () => {
+    if (currentView === 'login') {
+      return <AuthPage onAuthSuccess={handleAuthSuccess} onNavigate={navigate} />
+    }
+
+    if (currentView === 'logout') {
+      return <LogoutPage onLogout={handleLogout} onNavigate={navigate} />
+    }
+
+    if (currentView === 'products') {
+      return (
+        <ProductsPage
+          onCartChange={setCartCount}
+          onRequireLogin={() => {
+            setToast('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.')
+            navigate('login')
+          }}
+        />
+      )
+    }
+
+    if (currentView === 'cart') {
+      return <CartPage onCartChange={setCartCount} onNavigate={navigate} />
+    }
+
+    return (
+      <>
+        <Hero bannerFallbackImage={bannerFallbackImage} bannerImage={bannerImage} onTrackClick={trackClick} />
+        <LazyWhenVisible minHeight={430}>
+          <ProductFilm productFilmId={productFilmId} />
+        </LazyWhenVisible>
+        <LazyWhenVisible minHeight={380}>
+          <Features features={features} />
+        </LazyWhenVisible>
+        <LazyWhenVisible minHeight={330}>
+          <Specs specs={specs} />
+        </LazyWhenVisible>
+        <LazyWhenVisible minHeight={520}>
+          <Story storyCards={storyCards} />
+        </LazyWhenVisible>
+        <LazyWhenVisible minHeight={470}>
+          <Signup form={form} formState={formState} onFieldChange={updateField} onSubmit={submitForm} />
+          <ProofRow />
+          <Footer year={year} />
+        </LazyWhenVisible>
+      </>
+    )
+  }
+
   return (
     <main className="app-shell">
       <Toast message={toast} />
-      <Header theme={theme} onToggleTheme={toggleTheme} onTrackClick={trackClick} />
-      <Hero bannerFallbackImage={bannerFallbackImage} bannerImage={bannerImage} onTrackClick={trackClick} />
-      <LazyWhenVisible minHeight={430}>
-        <ProductFilm productFilmId={productFilmId} />
-      </LazyWhenVisible>
-      <LazyWhenVisible minHeight={380}>
-        <Features features={features} />
-      </LazyWhenVisible>
-      <LazyWhenVisible minHeight={330}>
-        <Specs specs={specs} />
-      </LazyWhenVisible>
-      <LazyWhenVisible minHeight={520}>
-        <Story storyCards={storyCards} />
-      </LazyWhenVisible>
-      <LazyWhenVisible minHeight={470}>
-        <Signup form={form} formState={formState} onFieldChange={updateField} onSubmit={submitForm} />
-        <ProofRow />
-        <Footer year={year} />
-      </LazyWhenVisible>
+      <Header
+        cartCount={cartCount}
+        currentView={currentView}
+        theme={theme}
+        user={user}
+        onNavigate={navigate}
+        onToggleTheme={toggleTheme}
+        onTrackClick={trackClick}
+      />
+      {renderCurrentView()}
     </main>
   )
 }
