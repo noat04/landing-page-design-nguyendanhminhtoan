@@ -1,8 +1,10 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import Toast from './components/Toast.jsx'
 import { bannerFallbackImage, bannerImage, features, productFilmId, specs, storyCards } from './data/landingData.js'
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const Features = lazy(() => import('./components/Features.jsx'))
 const Footer = lazy(() => import('./components/Footer.jsx'))
@@ -53,12 +55,50 @@ function LazyWhenVisible({ children, minHeight = 360 }) {
   return <Suspense fallback={fallback}>{children}</Suspense>
 }
 
+function normalizeSignupData(form) {
+  return {
+    name: form.name.trim().replace(/\s+/g, ' '),
+    email: form.email.trim().toLowerCase(),
+  }
+}
+
+function validateSignupData(data) {
+  if (data.name.length < 2) {
+    return 'Please enter your full name.'
+  }
+
+  if (data.name.length > 80) {
+    return 'Please keep your name under 80 characters.'
+  }
+
+  if (!emailPattern.test(data.email)) {
+    return 'Please enter a valid email address.'
+  }
+
+  if (data.email.length > 120) {
+    return 'Please keep your email under 120 characters.'
+  }
+
+  return ''
+}
+
+function createBehaviorEvent(type, label, detail = {}) {
+  return {
+    type,
+    label,
+    detail,
+    page: window.location.pathname,
+    timestamp: new Date().toISOString(),
+  }
+}
+
 function App() {
   const [theme, setTheme] = useState('dark')
   const [toast, setToast] = useState('Scroll to explore the story.')
   const [form, setForm] = useState({ name: '', email: '' })
   const [formState, setFormState] = useState({ type: 'idle', message: '' })
-  const [hasTrackedScroll, setHasTrackedScroll] = useState(false)
+  const behaviorEventsRef = useRef([])
+  const trackedScrollDepthsRef = useRef(new Set())
   const year = useMemo(() => new Date().getFullYear(), [])
 
   useEffect(() => {
@@ -173,21 +213,40 @@ function App() {
     }
   }, [])
 
+  const recordBehavior = useCallback((type, label, detail = {}) => {
+    const trackedEvent = createBehaviorEvent(type, label, detail)
+    behaviorEventsRef.current = [...behaviorEventsRef.current.slice(-9), trackedEvent]
+    setToast(`${type === 'scroll' ? 'Scroll' : 'Click'} tracked: ${label}`)
+    return trackedEvent
+  }, [])
+
+  const trackClick = useCallback(
+    (label) => {
+      recordBehavior('click', label)
+    },
+    [recordBehavior],
+  )
+
   useEffect(() => {
     const onScroll = () => {
-      if (!hasTrackedScroll && window.scrollY > 180) {
-        setHasTrackedScroll(true)
-        setToast('Scroll tracked: story section entered.')
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
+
+      if (scrollableHeight <= 0) {
+        return
+      }
+
+      const scrollDepth = Math.round((window.scrollY / scrollableHeight) * 100)
+      const milestone = [25, 50, 75].find((depth) => scrollDepth >= depth && !trackedScrollDepthsRef.current.has(depth))
+
+      if (milestone) {
+        trackedScrollDepthsRef.current.add(milestone)
+        recordBehavior('scroll', `${milestone}% page depth`, { depth: milestone })
       }
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [hasTrackedScroll])
-
-  const trackClick = (label) => {
-    setToast(`Click tracked: ${label}`)
-  }
+  }, [recordBehavior])
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'))
@@ -195,39 +254,51 @@ function App() {
 
   const updateField = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value })
+
+    if (formState.type === 'error') {
+      setFormState({ type: 'idle', message: '' })
+    }
   }
 
   const submitForm = async (event) => {
     event.preventDefault()
-    const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
+    const validatedData = normalizeSignupData(form)
+    const validationMessage = validateSignupData(validatedData)
 
-    if (form.name.trim().length < 2) {
-      setFormState({ type: 'error', message: 'Please enter your full name.' })
-      return
-    }
-
-    if (!emailIsValid) {
-      setFormState({ type: 'error', message: 'Please enter a valid email address.' })
+    if (validationMessage) {
+      setFormState({ type: 'error', message: validationMessage })
+      recordBehavior('click', 'newsletter validation failed', { reason: validationMessage })
       return
     }
 
     setFormState({ type: 'loading', message: 'Sending secure request...' })
-    trackClick('newsletter form')
+    const submitEvent = recordBehavior('click', 'newsletter form submitted')
 
     const webhookUrl = import.meta.env.VITE_WEBHOOK_URL
+    const webhookIsConfigured = Boolean(webhookUrl)
     const payload = {
-      ...form,
+      ...validatedData,
       source: 'Nova X Pro landing page',
+      pageUrl: window.location.href,
+      userAgent: window.navigator.userAgent,
       submittedAt: new Date().toISOString(),
+      behavior: [...behaviorEventsRef.current, submitEvent],
     }
 
     try {
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
+      if (webhookIsConfigured) {
+        const response = await fetch(webhookUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
           body: JSON.stringify(payload),
         })
+
+        if (!response.ok) {
+          throw new Error(`Webhook responded with ${response.status}`)
+        }
       } else {
         await new Promise((resolve) => {
           window.setTimeout(resolve, 650)
@@ -236,13 +307,15 @@ function App() {
 
       setFormState({
         type: 'success',
-        message: webhookUrl
+        message: webhookIsConfigured
           ? 'Thanks. Your request was sent to the webhook.'
           : 'Thanks. Demo validation passed. Add VITE_WEBHOOK_URL to send data.',
       })
       setForm({ name: '', email: '' })
+      recordBehavior('click', webhookIsConfigured ? 'webhook submission succeeded' : 'demo submission succeeded')
     } catch {
       setFormState({ type: 'error', message: 'Webhook failed. Please try again in a moment.' })
+      recordBehavior('click', 'webhook submission failed')
     }
   }
 
