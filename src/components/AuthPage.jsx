@@ -43,7 +43,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
 
       setForm(initialForm)
       setStatus({ type: 'success', message: isRegister ? 'Your account is ready.' : 'Signed in successfully.' })
-      onAuthSuccess(data.user)
+      onAuthSuccess(data.user, data.token)
       onNavigate('products')
     } catch (error) {
       setStatus({ type: 'error', message: error.message || 'Unable to sign in right now.' })

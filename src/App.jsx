@@ -7,7 +7,7 @@ import LogoutPage from './components/LogoutPage.jsx'
 import ProductsPage from './components/ProductsPage.jsx'
 import Toast from './components/Toast.jsx'
 import { bannerFallbackImage, bannerImage, features, productFilmId, specs, storyCards } from './data/landingData.js'
-import { apiFetch } from './lib/api.js'
+import { apiFetch, clearAuthToken, storeAuthToken } from './lib/api.js'
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -184,9 +184,10 @@ function App() {
   }, [])
 
   const handleAuthSuccess = useCallback(
-    (nextUser) => {
+    (nextUser, token) => {
       setUser(nextUser)
       storeUser(nextUser)
+      storeAuthToken(token)
       setToast(`Welcome, ${nextUser.name || nextUser.email}.`)
       refreshCartCount()
     },
@@ -197,6 +198,7 @@ function App() {
     setUser(null)
     setCartCount(0)
     clearStoredUser()
+    clearAuthToken()
     setToast('You have signed out.')
   }, [])
 
@@ -227,6 +229,7 @@ function App() {
           setUser(null)
           setCartCount(0)
           clearStoredUser()
+          clearAuthToken()
         }
       }
     }
