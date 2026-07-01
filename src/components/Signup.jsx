@@ -9,7 +9,16 @@ export default function Signup({ form, formState, onFieldChange, onSubmit }) {
       <form className="signup-form" onSubmit={onSubmit} noValidate>
         <label>
           <span>Full name</span>
-          <input name="name" value={form.name} onChange={onFieldChange} placeholder="Full name" autoComplete="name" />
+          <input
+            name="name"
+            value={form.name}
+            onChange={onFieldChange}
+            placeholder="Full name"
+            autoComplete="name"
+            minLength="2"
+            maxLength="80"
+            required
+          />
         </label>
         <label>
           <span>Email address</span>
@@ -20,6 +29,9 @@ export default function Signup({ form, formState, onFieldChange, onSubmit }) {
             placeholder="Email address"
             autoComplete="email"
             inputMode="email"
+            type="email"
+            maxLength="120"
+            required
           />
         </label>
         <button className="primary-button" type="submit" disabled={formState.type === 'loading'}>
