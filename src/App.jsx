@@ -20,6 +20,24 @@ const Specs = lazy(() => import('./components/Specs.jsx'))
 const Story = lazy(() => import('./components/Story.jsx'))
 
 const commerceViews = new Set(['login', 'logout', 'products', 'cart'])
+const authStorageKey = 'techgear_user'
+
+function readStoredUser() {
+  try {
+    const storedUser = window.localStorage.getItem(authStorageKey)
+    return storedUser ? JSON.parse(storedUser) : null
+  } catch {
+    return null
+  }
+}
+
+function storeUser(user) {
+  window.localStorage.setItem(authStorageKey, JSON.stringify(user))
+}
+
+function clearStoredUser() {
+  window.localStorage.removeItem(authStorageKey)
+}
 
 function getViewFromLocation() {
   const params = new URLSearchParams(window.location.search)
@@ -28,12 +46,12 @@ function getViewFromLocation() {
   return commerceViews.has(view) ? view : 'home'
 }
 
-function setViewInUrl(view) {
+function setViewInUrl(view, sectionId = 'top') {
   const url = new URL(window.location.href)
 
   if (view === 'home') {
     url.searchParams.delete('view')
-    url.hash = 'top'
+    url.hash = sectionId
   } else {
     url.searchParams.set('view', view)
     url.hash = ''
@@ -42,12 +60,13 @@ function setViewInUrl(view) {
   window.history.pushState({}, '', url)
 }
 
-function LazyWhenVisible({ children, minHeight = 360 }) {
+function LazyWhenVisible({ children, forceRender = false, minHeight = 360 }) {
   const placeholderRef = useRef(null)
   const [shouldRender, setShouldRender] = useState(false)
+  const isRendered = forceRender || shouldRender
 
   useEffect(() => {
-    if (shouldRender) {
+    if (isRendered) {
       window.dispatchEvent(new Event('landing:lazy-section-mounted'))
       return undefined
     }
@@ -72,11 +91,11 @@ function LazyWhenVisible({ children, minHeight = 360 }) {
     observer.observe(placeholder)
 
     return () => observer.disconnect()
-  }, [shouldRender])
+  }, [isRendered])
 
   const fallback = <div className="lazy-section-placeholder" style={{ minHeight }} aria-hidden="true" />
 
-  if (!shouldRender) {
+  if (!isRendered) {
     return <div ref={placeholderRef} className="lazy-section-placeholder" style={{ minHeight }} aria-hidden="true" />
   }
 
@@ -122,9 +141,14 @@ function createBehaviorEvent(type, label, detail = {}) {
 
 function App() {
   const [currentView, setCurrentView] = useState(getViewFromLocation)
+  const [homeScrollTarget, setHomeScrollTarget] = useState(() => window.location.hash.replace('#', '') || 'top')
+  const [forceHomeSections, setForceHomeSections] = useState(() => {
+    const initialHash = window.location.hash.replace('#', '')
+    return Boolean(initialHash && initialHash !== 'top')
+  })
   const [theme, setTheme] = useState('dark')
   const [toast, setToast] = useState('Scroll to explore the story.')
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(readStoredUser)
   const [cartCount, setCartCount] = useState(0)
   const [form, setForm] = useState({ name: '', email: '' })
   const [formState, setFormState] = useState({ type: 'idle', message: '' })
@@ -136,10 +160,18 @@ function App() {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
-  const navigate = useCallback((view) => {
+  const navigate = useCallback((view, sectionId = 'top') => {
     setCurrentView(view)
-    setViewInUrl(view)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setViewInUrl(view, sectionId)
+
+    if (view === 'home') {
+      setHomeScrollTarget(sectionId)
+      setForceHomeSections(sectionId !== 'top')
+    } else {
+      setHomeScrollTarget('top')
+      setForceHomeSections(false)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }, [])
 
   const refreshCartCount = useCallback(async () => {
@@ -154,6 +186,7 @@ function App() {
   const handleAuthSuccess = useCallback(
     (nextUser) => {
       setUser(nextUser)
+      storeUser(nextUser)
       setToast(`Xin chào ${nextUser.name || nextUser.email}.`)
       refreshCartCount()
     },
@@ -163,12 +196,14 @@ function App() {
   const handleLogout = useCallback(() => {
     setUser(null)
     setCartCount(0)
+    clearStoredUser()
     setToast('Bạn đã đăng xuất.')
   }, [])
 
   useEffect(() => {
     const onPopState = () => {
       setCurrentView(getViewFromLocation())
+      setHomeScrollTarget(window.location.hash.replace('#', '') || 'top')
     }
 
     window.addEventListener('popstate', onPopState)
@@ -184,12 +219,14 @@ function App() {
 
         if (alive) {
           setUser(data.user)
+          storeUser(data.user)
           refreshCartCount()
         }
       } catch {
         if (alive) {
           setUser(null)
           setCartCount(0)
+          clearStoredUser()
         }
       }
     }
@@ -200,6 +237,27 @@ function App() {
       alive = false
     }
   }, [refreshCartCount])
+
+  useEffect(() => {
+    if (currentView !== 'home') {
+      return undefined
+    }
+
+    const scrollToTarget = () => {
+      if (homeScrollTarget === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+
+      document.getElementById(homeScrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      window.setTimeout(scrollToTarget, forceHomeSections ? 80 : 0)
+    })
+
+    return () => window.cancelAnimationFrame(animationFrame)
+  }, [currentView, forceHomeSections, homeScrollTarget])
 
   useEffect(() => {
     let ctx
@@ -443,19 +501,19 @@ function App() {
     return (
       <>
         <Hero bannerFallbackImage={bannerFallbackImage} bannerImage={bannerImage} onTrackClick={trackClick} />
-        <LazyWhenVisible minHeight={430}>
+        <LazyWhenVisible forceRender={forceHomeSections} minHeight={430}>
           <ProductFilm productFilmId={productFilmId} />
         </LazyWhenVisible>
-        <LazyWhenVisible minHeight={380}>
+        <LazyWhenVisible forceRender={forceHomeSections} minHeight={380}>
           <Features features={features} />
         </LazyWhenVisible>
-        <LazyWhenVisible minHeight={330}>
+        <LazyWhenVisible forceRender={forceHomeSections} minHeight={330}>
           <Specs specs={specs} />
         </LazyWhenVisible>
-        <LazyWhenVisible minHeight={520}>
+        <LazyWhenVisible forceRender={forceHomeSections} minHeight={520}>
           <Story storyCards={storyCards} />
         </LazyWhenVisible>
-        <LazyWhenVisible minHeight={470}>
+        <LazyWhenVisible forceRender={forceHomeSections} minHeight={470}>
           <Signup form={form} formState={formState} onFieldChange={updateField} onSubmit={submitForm} />
           <ProofRow />
           <Footer year={year} />
