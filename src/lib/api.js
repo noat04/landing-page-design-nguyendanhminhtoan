@@ -33,7 +33,7 @@ export async function apiFetch(path, options = {}) {
   const payload = await readJson(response)
 
   if (!response.ok) {
-    throw new ApiError(payload?.message || 'Co loi xay ra.', response.status, payload?.details)
+    throw new ApiError(payload?.message || 'Something went wrong.', response.status, payload?.details)
   }
 
   return payload

@@ -187,7 +187,7 @@ function App() {
     (nextUser) => {
       setUser(nextUser)
       storeUser(nextUser)
-      setToast(`Xin chào ${nextUser.name || nextUser.email}.`)
+      setToast(`Welcome, ${nextUser.name || nextUser.email}.`)
       refreshCartCount()
     },
     [refreshCartCount],
@@ -197,7 +197,7 @@ function App() {
     setUser(null)
     setCartCount(0)
     clearStoredUser()
-    setToast('Bạn đã đăng xuất.')
+    setToast('You have signed out.')
   }, [])
 
   useEffect(() => {
@@ -487,7 +487,7 @@ function App() {
         <ProductsPage
           onCartChange={setCartCount}
           onRequireLogin={() => {
-            setToast('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.')
+            setToast('Please sign in to add products to your cart.')
             navigate('login')
           }}
         />

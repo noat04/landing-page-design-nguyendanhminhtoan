@@ -10,7 +10,7 @@ const emptyTotals = {
 export default function CartPage({ onCartChange, onNavigate }) {
   const [cart, setCart] = useState({ items: [] })
   const [totals, setTotals] = useState(emptyTotals)
-  const [status, setStatus] = useState({ type: 'loading', message: 'Đang tải giỏ hàng...' })
+  const [status, setStatus] = useState({ type: 'loading', message: 'Loading cart...' })
   const [busyProductId, setBusyProductId] = useState('')
 
   const applyCart = useCallback((data) => {
@@ -23,7 +23,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
     let alive = true
 
     const loadCart = async () => {
-      setStatus({ type: 'loading', message: 'Đang tải giỏ hàng...' })
+      setStatus({ type: 'loading', message: 'Loading cart...' })
 
       try {
         const data = await apiFetch('/api/cart')
@@ -42,7 +42,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
           return
         }
 
-        setStatus({ type: 'error', message: error.message || 'Không thể tải giỏ hàng.' })
+        setStatus({ type: 'error', message: error.message || 'Unable to load your cart.' })
       }
     }
 
@@ -64,7 +64,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
       applyCart(data)
       setStatus({ type: 'idle', message: '' })
     } catch (error) {
-      setStatus({ type: 'error', message: error.message || 'Không thể cập nhật giỏ hàng.' })
+      setStatus({ type: 'error', message: error.message || 'Unable to update your cart.' })
     } finally {
       setBusyProductId('')
     }
@@ -77,7 +77,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
       const data = await apiFetch(`/api/cart/items/${productId}`, { method: 'DELETE' })
       applyCart(data || { cart: { items: [] }, totals: emptyTotals })
     } catch (error) {
-      setStatus({ type: 'error', message: error.message || 'Không thể xóa sản phẩm.' })
+      setStatus({ type: 'error', message: error.message || 'Unable to remove this product.' })
     } finally {
       setBusyProductId('')
     }
@@ -89,9 +89,9 @@ export default function CartPage({ onCartChange, onNavigate }) {
     try {
       const data = await apiFetch('/api/cart', { method: 'DELETE' })
       applyCart(data)
-      setStatus({ type: 'success', message: 'Giỏ hàng đã được làm trống.' })
+      setStatus({ type: 'success', message: 'Your cart has been cleared.' })
     } catch (error) {
-      setStatus({ type: 'error', message: error.message || 'Không thể xóa giỏ hàng.' })
+      setStatus({ type: 'error', message: error.message || 'Unable to clear your cart.' })
     } finally {
       setBusyProductId('')
     }
@@ -99,18 +99,18 @@ export default function CartPage({ onCartChange, onNavigate }) {
 
   return (
     <section className="commerce-page">
-      <div className="page-kicker">Thanh toán</div>
+      <div className="page-kicker">Checkout</div>
       <div className="commerce-heading">
         <div>
-          <h1>Giỏ hàng</h1>
-          <p>Kiểm tra sản phẩm, điều chỉnh số lượng và chuẩn bị đặt hàng.</p>
+          <h1>Cart</h1>
+          <p>Review your products, adjust quantities, and get ready to place your order.</p>
         </div>
         <button className="ghost-button" type="button" onClick={() => onNavigate('products')}>
-          Tiếp tục mua
+          Continue shopping
         </button>
       </div>
 
-      <p className={`commerce-status ${status.type}`}>{status.message || `${totals.totalItems} sản phẩm trong giỏ`}</p>
+      <p className={`commerce-status ${status.type}`}>{status.message || `${totals.totalItems} products in cart`}</p>
 
       {cart.items?.length ? (
         <div className="cart-layout">
@@ -135,7 +135,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
                   <div className="quantity-control">
                     <button
                       type="button"
-                      aria-label="Giảm số lượng"
+                      aria-label="Decrease quantity"
                       onClick={() => updateQuantity(product._id, Math.max(1, item.quantity - 1))}
                       disabled={item.quantity <= 1 || busyProductId === product._id}
                     >
@@ -143,7 +143,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
                     </button>
                     <input
                       value={item.quantity}
-                      aria-label={`Số lượng ${product.name}`}
+                      aria-label={`Quantity for ${product.name}`}
                       onChange={(event) => {
                         const quantity = Number(event.target.value)
 
@@ -154,7 +154,7 @@ export default function CartPage({ onCartChange, onNavigate }) {
                     />
                     <button
                       type="button"
-                      aria-label="Tăng số lượng"
+                      aria-label="Increase quantity"
                       onClick={() => updateQuantity(product._id, Math.min(99, item.quantity + 1))}
                       disabled={busyProductId === product._id}
                     >
@@ -167,37 +167,37 @@ export default function CartPage({ onCartChange, onNavigate }) {
                     onClick={() => removeItem(product._id)}
                     disabled={busyProductId === product._id}
                   >
-                    Xóa
+                    Remove
                   </button>
                 </article>
               )
             })}
           </div>
 
-          <aside className="cart-summary" aria-label="Tóm tắt giỏ hàng">
-            <h2>Tóm tắt</h2>
+          <aside className="cart-summary" aria-label="Cart summary">
+            <h2>Summary</h2>
             <div>
-              <span>Tạm tính</span>
+              <span>Subtotal</span>
               <strong>{formatPrice(totals.subtotal, totals.currency)}</strong>
             </div>
             <div>
-              <span>Số lượng</span>
+              <span>Quantity</span>
               <strong>{totals.totalItems}</strong>
             </div>
             <button className="primary-button" type="button">
-              Đặt hàng
+              Place order
             </button>
             <button className="ghost-button" type="button" onClick={clearCart} disabled={busyProductId === 'all'}>
-              Làm trống giỏ
+              Clear cart
             </button>
           </aside>
         </div>
       ) : status.type !== 'loading' ? (
         <div className="empty-state">
-          <h2>Giỏ hàng đang trống</h2>
-          <p>Thêm một sản phẩm từ danh sách để bắt đầu đơn hàng.</p>
+          <h2>Your cart is empty</h2>
+          <p>Add a product from the list to start your order.</p>
           <button className="primary-button" type="button" onClick={() => onNavigate('products')}>
-            Xem sản phẩm
+            View products
           </button>
         </div>
       ) : null}
