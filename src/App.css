@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Techgear Sans';
-  src: url('/fonts/light.otf') format('opentype');
+  src: url('/fonts/light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'Techgear Sans';
-  src: url('/fonts/regular.otf') format('opentype');
+  src: url('/fonts/regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: 'Techgear Sans';
-  src: url('/fonts/medium.otf') format('opentype');
+  src: url('/fonts/medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: 'Techgear Sans';
-  src: url('/fonts/semibold.otf') format('opentype');
+  src: url('/fonts/semibold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -32,7 +32,7 @@
 
 @font-face {
   font-family: 'Techgear Sans';
-  src: url('/fonts/bold.otf') format('opentype');
+  src: url('/fonts/bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
