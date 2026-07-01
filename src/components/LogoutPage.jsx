@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api.js'
 
 export default function LogoutPage({ onLogout, onNavigate }) {
-  const [message, setMessage] = useState('Đang đăng xuất...')
+  const [message, setMessage] = useState('Signing out...')
 
   useEffect(() => {
     let alive = true
@@ -12,13 +12,13 @@ export default function LogoutPage({ onLogout, onNavigate }) {
         await apiFetch('/api/auth/logout', { method: 'POST' })
         if (alive) {
           onLogout()
-          setMessage('Bạn đã đăng xuất.')
+          setMessage('You have signed out.')
           window.setTimeout(() => onNavigate('login'), 500)
         }
       } catch (error) {
         if (alive) {
           onLogout()
-          setMessage(error.message || 'Không thể gọi API đăng xuất, phiên cục bộ đã được làm mới.')
+          setMessage(error.message || 'Unable to call the sign-out API. Your local session was refreshed.')
         }
       }
     }
@@ -32,10 +32,10 @@ export default function LogoutPage({ onLogout, onNavigate }) {
 
   return (
     <section className="commerce-page auth-page">
-      <div className="page-kicker">Phiên đăng nhập</div>
+      <div className="page-kicker">Session</div>
       <div className="commerce-heading">
         <div>
-          <h1>Đăng xuất</h1>
+          <h1>Sign out</h1>
           <p>{message}</p>
         </div>
       </div>

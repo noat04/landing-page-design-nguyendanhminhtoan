@@ -23,7 +23,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
 
   const submitForm = async (event) => {
     event.preventDefault()
-    setStatus({ type: 'loading', message: isRegister ? 'Đang tạo tài khoản...' : 'Đang đăng nhập...' })
+    setStatus({ type: 'loading', message: isRegister ? 'Creating your account...' : 'Signing in...' })
 
     try {
       const payload = isRegister
@@ -42,27 +42,27 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
       })
 
       setForm(initialForm)
-      setStatus({ type: 'success', message: isRegister ? 'Tài khoản đã sẵn sàng.' : 'Đăng nhập thành công.' })
+      setStatus({ type: 'success', message: isRegister ? 'Your account is ready.' : 'Signed in successfully.' })
       onAuthSuccess(data.user)
       onNavigate('products')
     } catch (error) {
-      setStatus({ type: 'error', message: error.message || 'Không thể đăng nhập lúc này.' })
+      setStatus({ type: 'error', message: error.message || 'Unable to sign in right now.' })
     }
   }
 
   return (
     <section className="commerce-page auth-page">
-      <div className="page-kicker">Tài khoản</div>
+      <div className="page-kicker">Account</div>
       <div className="commerce-heading">
         <div>
-          <h1>{isRegister ? 'Tạo tài khoản mới' : 'Đăng nhập'}</h1>
+          <h1>{isRegister ? 'Create a new account' : 'Sign in'}</h1>
           <p>
             {isRegister
-              ? 'Tạo tài khoản để lưu giỏ hàng và theo dõi sản phẩm yêu thích.'
-              : 'Đăng nhập để thêm sản phẩm vào giỏ hàng và tiếp tục mua sắm.'}
+              ? 'Create an account to save your cart and track favorite products.'
+              : 'Sign in to add products to your cart and keep shopping.'}
           </p>
         </div>
-        <div className="auth-switch" role="tablist" aria-label="Chọn chế độ tài khoản">
+        <div className="auth-switch" role="tablist" aria-label="Choose account mode">
           <button
             className={mode === 'login' ? 'active' : ''}
             type="button"
@@ -70,7 +70,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
             role="tab"
             aria-selected={mode === 'login'}
           >
-            Đăng nhập
+            Sign in
           </button>
           <button
             className={mode === 'register' ? 'active' : ''}
@@ -79,7 +79,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
             role="tab"
             aria-selected={mode === 'register'}
           >
-            Đăng ký
+            Register
           </button>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
       <form className="auth-panel" onSubmit={submitForm}>
         {isRegister ? (
           <label>
-            <span>Họ tên</span>
+            <span>Full name</span>
             <input name="name" value={form.name} onChange={updateField} minLength="2" maxLength="80" required />
           </label>
         ) : null}
@@ -96,7 +96,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
           <input name="email" value={form.email} onChange={updateField} type="email" autoComplete="email" required />
         </label>
         <label>
-          <span>Mật khẩu</span>
+          <span>Password</span>
           <input
             name="password"
             value={form.password}
@@ -109,7 +109,7 @@ export default function AuthPage({ onAuthSuccess, onNavigate }) {
           />
         </label>
         <button className="primary-button" type="submit" disabled={status.type === 'loading'}>
-          {status.type === 'loading' ? 'Đang xử lý...' : isRegister ? 'Tạo tài khoản' : 'Đăng nhập'}
+          {status.type === 'loading' ? 'Processing...' : isRegister ? 'Create account' : 'Sign in'}
         </button>
         <p className={`form-message ${status.type === 'error' ? 'error' : status.type === 'success' ? 'success' : ''}`}>
           {status.message}

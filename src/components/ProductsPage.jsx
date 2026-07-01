@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, formatPrice, getProductImage } from '../lib/api.js'
 
 const sortOptions = [
-  ['newest', 'Mới nhất'],
-  ['price_asc', 'Giá tăng'],
-  ['price_desc', 'Giá giảm'],
+  ['newest', 'Newest'],
+  ['price_asc', 'Price: low to high'],
+  ['price_desc', 'Price: high to low'],
 ]
 
 export default function ProductsPage({ onRequireLogin, onCartChange }) {
@@ -13,7 +13,7 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('newest')
   const [page, setPage] = useState(1)
-  const [status, setStatus] = useState({ type: 'loading', message: 'Đang tải sản phẩm...' })
+  const [status, setStatus] = useState({ type: 'loading', message: 'Loading products...' })
   const [busyProductId, setBusyProductId] = useState('')
   const searchParams = useMemo(() => {
     const params = new URLSearchParams({
@@ -36,7 +36,7 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
     let alive = true
 
     const loadProducts = async () => {
-      setStatus({ type: 'loading', message: 'Đang tải sản phẩm...' })
+      setStatus({ type: 'loading', message: 'Loading products...' })
 
       try {
         const data = await apiFetch(`/api/products?${searchParams}`)
@@ -48,7 +48,7 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
         }
       } catch (error) {
         if (alive) {
-          setStatus({ type: 'error', message: error.message || 'Không thể tải sản phẩm.' })
+          setStatus({ type: 'error', message: error.message || 'Unable to load products.' })
         }
       }
     }
@@ -77,14 +77,14 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
         },
       })
       onCartChange(data.totals?.totalItems || 0)
-      setStatus({ type: 'success', message: `Đã thêm ${product.name} vào giỏ hàng.` })
+      setStatus({ type: 'success', message: `${product.name} was added to your cart.` })
     } catch (error) {
       if (error.status === 401) {
         onRequireLogin()
         return
       }
 
-      setStatus({ type: 'error', message: error.message || 'Không thể thêm vào giỏ hàng.' })
+      setStatus({ type: 'error', message: error.message || 'Unable to add this product to your cart.' })
     } finally {
       setBusyProductId('')
     }
@@ -92,20 +92,20 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
 
   return (
     <section className="commerce-page">
-      <div className="page-kicker">Cửa hàng</div>
+      <div className="page-kicker">Store</div>
       <div className="commerce-heading">
         <div>
-          <h1>Danh sách sản phẩm</h1>
-          <p>Chọn mẫu iPhone phù hợp, kiểm tra tồn kho và thêm nhanh vào giỏ hàng.</p>
+          <h1>Product list</h1>
+          <p>Choose the right iPhone model, check stock, and quickly add it to your cart.</p>
         </div>
         <form className="product-toolbar" onSubmit={submitSearch}>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm sản phẩm"
-            aria-label="Tìm sản phẩm"
+            placeholder="Search products"
+            aria-label="Search products"
           />
-          <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sắp xếp sản phẩm">
+          <select value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort products">
             {sortOptions.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -113,12 +113,12 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
             ))}
           </select>
           <button className="primary-button small" type="submit">
-            Tìm
+            Search
           </button>
         </form>
       </div>
 
-      <p className={`commerce-status ${status.type}`}>{status.message || `${pagination.total} sản phẩm`}</p>
+      <p className={`commerce-status ${status.type}`}>{status.message || `${pagination.total} products`}</p>
 
       <div className="product-grid">
         {products.map((product) => (
@@ -130,14 +130,14 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
               <div>
                 <p className="product-category">{product.category}</p>
                 <h2>{product.name}</h2>
-                <p className="product-description">{product.description || 'Sản phẩm chính hãng, sẵn sàng giao hàng.'}</p>
+                <p className="product-description">{product.description || 'Authentic product, ready to ship.'}</p>
               </div>
               <div className="product-meta">
                 <div>
                   <strong>{formatPrice(product.price, product.currency)}</strong>
                   {product.originalPrice ? <span>{formatPrice(product.originalPrice, product.currency)}</span> : null}
                 </div>
-                <em>{product.stock > 0 ? `Còn ${product.stock}` : 'Hết hàng'}</em>
+                <em>{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</em>
               </div>
               <button
                 className="primary-button"
@@ -145,7 +145,7 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
                 onClick={() => addToCart(product)}
                 disabled={product.stock < 1 || busyProductId === product._id}
               >
-                {busyProductId === product._id ? 'Đang thêm...' : 'Thêm vào giỏ'}
+                {busyProductId === product._id ? 'Adding...' : 'Add to cart'}
               </button>
             </div>
           </article>
@@ -154,18 +154,18 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
 
       {status.type !== 'loading' && products.length === 0 ? (
         <div className="empty-state">
-          <h2>Chưa có sản phẩm phù hợp</h2>
-          <p>Thử đổi từ khóa tìm kiếm hoặc kiểm tra lại dữ liệu seed ở backend.</p>
+          <h2>No matching products</h2>
+          <p>Try changing your search keyword or checking the seeded backend data.</p>
         </div>
       ) : null}
 
       {pagination.pages > 1 ? (
-        <div className="pager" aria-label="Phân trang sản phẩm">
+        <div className="pager" aria-label="Product pagination">
           <button className="ghost-button" type="button" onClick={() => setPage((current) => current - 1)} disabled={page <= 1}>
-            Trước
+            Previous
           </button>
           <span>
-            Trang {pagination.page} / {pagination.pages}
+            Page {pagination.page} / {pagination.pages}
           </span>
           <button
             className="ghost-button"
@@ -173,7 +173,7 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
             onClick={() => setPage((current) => current + 1)}
             disabled={page >= pagination.pages}
           >
-            Sau
+            Next
           </button>
         </div>
       ) : null}
