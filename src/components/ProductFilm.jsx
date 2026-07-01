@@ -14,7 +14,8 @@ export default function ProductFilm({ productFilmId }) {
           id={productFilmId}
           title="iPhone 18 Pro feature preview video"
           lazyLoad
-          poster="maxresdefault"
+          poster="hqdefault"
+          webp
         />
       </div>
     </section>
