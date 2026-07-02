@@ -248,16 +248,120 @@ VITE_WEBHOOK_URL=https://your-webhook-url.com
 
 Nếu deploy frontend và backend khác domain, cần thêm domain frontend vào `CLIENT_ORIGIN` của backend.
 
-## Checklist Trước Khi Nộp
+## Minh Chứng Giao Diện Và PageSpeed
 
-- Chạy `npm run build` để đảm bảo build production thành công.
-- Chạy `npm run lint` để kiểm tra code style.
-- Kiểm tra desktop và mobile bằng DevTools responsive mode.
-- Kiểm tra form đăng ký với email hợp lệ và không hợp lệ.
-- Kiểm tra chatbot khi backend đang chạy.
-- Kiểm tra login, danh sách sản phẩm, yêu thích và giỏ hàng sau khi seed dữ liệu backend.
-- Chạy Lighthouse/PageSpeed với bản deploy production.
+Link triển khai production:
 
-## Ghi Chú Nộp Bài
+```text
+https://landing-page-design-nguyendanhminhtoan.vercel.app
+```
 
-Frontend vẫn hoạt động như một landing page độc lập khi chưa có backend. Các chức năng mini commerce và chatbot sẽ hoạt động đầy đủ khi backend được cấu hình bằng `VITE_API_BASE_URL` hoặc proxy local `/api`.
+Các ảnh minh chứng nên được lưu trong thư mục `docs/screenshots/` để hiển thị trực tiếp trên GitHub.
+
+### Màn hình giao diện trang landing page
+
+Hero section trên bản deploy:
+
+![Hero section](docs/screenshots/landing-hero.png)
+
+Product film section:
+
+![Product film section](docs/screenshots/landing-product-film.png)
+
+Features section:
+
+![Features section](docs/screenshots/landing-features.png)
+
+Technical specifications section:
+
+![Specifications section](docs/screenshots/landing-specifications.png)
+
+Scrollytelling design section:
+
+![Story section](docs/screenshots/landing-story.png)
+
+Newsletter signup và footer:
+
+![Signup and footer section](docs/screenshots/landing-signup-footer.png)
+
+### Ảnh chụp màn hình điểm số Google PageSpeed Insights
+
+Kết quả đo PageSpeed Insights trên bản deploy production:
+
+![Google PageSpeed Insights mobile score](docs/screenshots/pagespeed-mobile-score.png)
+
+Thông tin báo cáo:
+
+| Hạng mục | Kết quả |
+| --- | --- |
+| URL kiểm tra | `https://landing-page-design-nguyendanhminhtoan.vercel.app/` |
+| Thiết bị | Mobile |
+| Thời gian báo cáo | Jul 2, 2026, 11:30:41 PM |
+| Performance | 96 |
+| Accessibility | 100 |
+| Best Practices | 96 |
+| SEO | 100 |
+| Agentic Browsing | 1/2 |
+
+## Màn hình giao diện các phần điểm cộng làm thêm
+
+Các ảnh minh chứng dưới đây tương ứng với các điểm cộng đã triển khai thêm ngoài yêu cầu cơ bản của đề bài.
+
+### 1. Kiểm tra dữ liệu form, gửi Webhook/Google Sheet và tracking hành vi
+
+Form đăng ký có validate dữ liệu người dùng trước khi gửi. Khi người dùng click, submit hoặc scroll tới các mốc 25%, 50%, 75%, hệ thống ghi nhận hành vi và hiển thị toast realtime.
+
+![Webhook validation and behavior tracking](docs/screenshots/bonus-webhook-validation-tracking.png)
+
+### 2. Dark Mode / Light Mode
+
+Giao diện hỗ trợ chuyển theme bằng nút toggle trên header, sử dụng CSS variables và `data-theme` để đổi màu toàn bộ layout.
+
+![Dark mode and light mode](docs/screenshots/bonus-dark-mode.png)
+
+### 3. Scroll Animation, Skeleton Loading và Micro-interactions
+
+Các section bên dưới fold được lazy-load, có placeholder/skeleton nhẹ trong lúc chờ render. Animation reveal, hover state, toast, button state và tương tác story card giúp trải nghiệm mượt hơn.
+
+![Scroll animation skeleton loading and micro interactions](docs/screenshots/bonus-scroll-animation-skeleton-microinteractions.png)
+
+### 4. Backend xử lý lưu trữ dữ liệu
+
+Frontend đã tích hợp REST API cho đăng ký/đăng nhập, sản phẩm, yêu thích, giỏ hàng và chatbot thông qua `src/lib/api.js`. Dữ liệu form đăng ký có thể gửi về Google Sheet hoặc webhook thực tế.
+
+![Backend API integration](docs/screenshots/bonus-backend-storage.png)
+
+### 5. Scrollytelling kết hợp Parallax
+
+Landing page được thiết kế theo hướng cuộn trang kể chuyện: hero, product film, features, specs, story và signup. Hero có parallax nhẹ bằng GSAP ScrollTrigger, story section có card tương tác để tăng cảm giác cao cấp.
+
+![Scrollytelling and parallax](docs/screenshots/bonus-scrollytelling-parallax.png)
+
+### 6. Tính năng thương mại điện tử mini và chatbot
+
+Luồng mini commerce gồm đăng nhập, đăng xuất, danh sách sản phẩm, chi tiết sản phẩm, lưu yêu thích, giỏ hàng và chatbot tư vấn sản phẩm.
+
+Màn hình đăng nhập / đăng ký:
+
+![Login and register page](docs/screenshots/bonus-auth-login-register.png)
+
+Màn hình danh sách sản phẩm:
+
+![Products list page](docs/screenshots/bonus-products-list.png)
+
+Màn hình chi tiết sản phẩm:
+
+![Product detail page](docs/screenshots/bonus-product-detail.png)
+
+Màn hình sản phẩm yêu thích:
+
+![Favorites page](docs/screenshots/bonus-favorites.png)
+
+Màn hình giỏ hàng:
+
+![Cart page](docs/screenshots/bonus-cart.png)
+
+Màn hình chatbot tư vấn sản phẩm:
+
+![Product chatbot](docs/screenshots/bonus-chatbot.png)
+
