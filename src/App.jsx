@@ -153,6 +153,32 @@ function createBehaviorEvent(type, label, detail = {}) {
   }
 }
 
+async function sendSignupToGoogleSheet(url, payload) {
+  await fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8',
+    },
+    body: JSON.stringify(payload),
+  })
+}
+
+async function sendSignupToWebhook(url, payload) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Webhook responded with ${response.status}`)
+  }
+}
+
 function App() {
   const [currentView, setCurrentView] = useState(getViewFromLocation)
   const [productDetailId, setProductDetailId] = useState(getProductIdFromLocation)
@@ -307,7 +333,6 @@ function App() {
       gsap.registerPlugin(ScrollTrigger)
 
       const revealItems = new WeakSet()
-      const storyCards = new WeakSet()
 
       setupLazyAnimations = () => {
         gsap.utils.toArray('.reveal').forEach((item) => {
@@ -324,24 +349,6 @@ function App() {
             scrollTrigger: {
               trigger: item,
               start: 'top 84%',
-            },
-          })
-        })
-
-        gsap.utils.toArray('.story-card').forEach((card, index) => {
-          if (storyCards.has(card)) {
-            return
-          }
-
-          storyCards.add(card)
-          gsap.to(card, {
-            yPercent: index % 2 === 0 ? -7 : 7,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
             },
           })
         })
@@ -448,11 +455,14 @@ function App() {
     setFormState({ type: 'loading', message: 'Sending secure request...' })
     const submitEvent = recordBehavior('click', 'newsletter form submitted')
 
+    const googleSheetUrl = import.meta.env.VITE_GOOGLE_SHEETS_WEB_APP_URL
     const webhookUrl = import.meta.env.VITE_WEBHOOK_URL
+    const googleSheetIsConfigured = Boolean(googleSheetUrl)
     const webhookIsConfigured = Boolean(webhookUrl)
     const payload = {
       ...validatedData,
       source: 'Nova X Pro landing page',
+      destination: googleSheetIsConfigured ? 'google-sheet' : webhookIsConfigured ? 'webhook' : 'demo',
       pageUrl: window.location.href,
       userAgent: window.navigator.userAgent,
       submittedAt: new Date().toISOString(),
@@ -460,19 +470,10 @@ function App() {
     }
 
     try {
-      if (webhookIsConfigured) {
-        const response = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify(payload),
-        })
-
-        if (!response.ok) {
-          throw new Error(`Webhook responded with ${response.status}`)
-        }
+      if (googleSheetIsConfigured) {
+        await sendSignupToGoogleSheet(googleSheetUrl, payload)
+      } else if (webhookIsConfigured) {
+        await sendSignupToWebhook(webhookUrl, payload)
       } else {
         await new Promise((resolve) => {
           window.setTimeout(resolve, 650)
@@ -481,15 +482,24 @@ function App() {
 
       setFormState({
         type: 'success',
-        message: webhookIsConfigured
-          ? 'Thanks. Your request was sent to the webhook.'
-          : 'Thanks. Demo validation passed. Add VITE_WEBHOOK_URL to send data.',
+        message: googleSheetIsConfigured
+          ? 'Thanks. Your request was sent to Google Sheet.'
+          : webhookIsConfigured
+            ? 'Thanks. Your request was sent to the webhook.'
+            : 'Thanks. Demo validation passed. Add VITE_GOOGLE_SHEETS_WEB_APP_URL to send data.',
       })
       setForm({ name: '', email: '' })
-      recordBehavior('click', webhookIsConfigured ? 'webhook submission succeeded' : 'demo submission succeeded')
+      recordBehavior(
+        'click',
+        googleSheetIsConfigured
+          ? 'google sheet request sent'
+          : webhookIsConfigured
+            ? 'webhook submission succeeded'
+            : 'demo submission succeeded',
+      )
     } catch {
-      setFormState({ type: 'error', message: 'Webhook failed. Please try again in a moment.' })
-      recordBehavior('click', 'webhook submission failed')
+      setFormState({ type: 'error', message: 'Submission failed. Please try again in a moment.' })
+      recordBehavior('click', googleSheetIsConfigured ? 'google sheet submission failed' : 'webhook submission failed')
     }
   }
 

@@ -1,16 +1,62 @@
-# React + Vite
+﻿# Landing page frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run local
 
-Currently, two official plugins are available:
+```bash
+npm install
+npm run dev
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Send signup data to Google Sheet
 
-## React Compiler
+The `#signup` form sends data to `VITE_GOOGLE_SHEETS_WEB_APP_URL` when this variable is configured.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Create a Google Sheet with columns:
 
-## Expanding the ESLint configuration
+```text
+Submitted At | Name | Email | Source | Page URL | User Agent
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Open `Extensions > Apps Script` and add:
+
+```js
+const SHEET_NAME = 'Sheet1'
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME)
+  const data = JSON.parse(e.postData.contents || '{}')
+
+  sheet.appendRow([
+    data.submittedAt || new Date().toISOString(),
+    data.name || '',
+    data.email || '',
+    data.source || '',
+    data.pageUrl || '',
+    data.userAgent || '',
+  ])
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true }))
+    .setMimeType(ContentService.MimeType.JSON)
+}
+```
+
+3. Deploy as `Web app`:
+
+- Execute as: `Me`
+- Who has access: `Anyone`
+
+4. Copy the Web App URL into `.env`:
+
+```bash
+VITE_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+```
+
+Then restart Vite.
+
+## Troubleshooting
+
+- If a direct test returns `401 Unauthorized`, redeploy the Apps Script Web App and set `Who has access` to `Anyone`.
+- After changing Apps Script code or permissions, use `Deploy > Manage deployments > Edit > New version`, then copy the latest Web App URL.
+- `SHEET_NAME` must match the sheet tab name at the bottom of Google Sheets. The file name at the top is not the tab name.
+- The frontend uses `no-cors` for Google Apps Script, so the browser cannot confirm whether the row was written. Check Apps Script executions and the Sheet itself for the real result.
