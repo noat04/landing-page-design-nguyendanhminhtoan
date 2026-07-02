@@ -7,7 +7,7 @@ const sortOptions = [
   ['price_desc', 'Price: high to low'],
 ]
 
-export default function ProductsPage({ onRequireLogin, onCartChange }) {
+export default function ProductsPage({ user, onRequireLogin, onCartChange, onNavigate }) {
   const [products, setProducts] = useState([])
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 })
   const [query, setQuery] = useState('')
@@ -15,6 +15,8 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState({ type: 'loading', message: 'Loading products...' })
   const [busyProductId, setBusyProductId] = useState('')
+  const [favoriteIds, setFavoriteIds] = useState(() => new Set())
+  const [busyFavoriteId, setBusyFavoriteId] = useState('')
   const searchParams = useMemo(() => {
     const params = new URLSearchParams({
       page: String(page),
@@ -60,6 +62,35 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    let alive = true
+
+    const loadFavorites = async () => {
+      if (!user) {
+        setFavoriteIds(new Set())
+        return
+      }
+
+      try {
+        const data = await apiFetch('/api/favorites')
+
+        if (alive) {
+          setFavoriteIds(new Set((data.items || []).map((item) => item.product?._id).filter(Boolean)))
+        }
+      } catch {
+        if (alive) {
+          setFavoriteIds(new Set())
+        }
+      }
+    }
+
+    loadFavorites()
+
+    return () => {
+      alive = false
+    }
+  }, [user])
+
   const submitSearch = (event) => {
     event.preventDefault()
     setPage(1)
@@ -87,6 +118,44 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
       setStatus({ type: 'error', message: error.message || 'Unable to add this product to your cart.' })
     } finally {
       setBusyProductId('')
+    }
+  }
+
+  const toggleFavorite = async (product) => {
+    if (!user) {
+      onRequireLogin()
+      return
+    }
+
+    const isFavorite = favoriteIds.has(product._id)
+    setBusyFavoriteId(product._id)
+
+    try {
+      await apiFetch(`/api/favorites/${product._id}`, { method: isFavorite ? 'DELETE' : 'POST' })
+      setFavoriteIds((currentIds) => {
+        const nextIds = new Set(currentIds)
+
+        if (isFavorite) {
+          nextIds.delete(product._id)
+        } else {
+          nextIds.add(product._id)
+        }
+
+        return nextIds
+      })
+      setStatus({
+        type: 'success',
+        message: isFavorite ? `${product.name} was removed from favorites.` : `${product.name} was saved to favorites.`,
+      })
+    } catch (error) {
+      if (error.status === 401) {
+        onRequireLogin()
+        return
+      }
+
+      setStatus({ type: 'error', message: error.message || 'Unable to update favorites.' })
+    } finally {
+      setBusyFavoriteId('')
     }
   }
 
@@ -147,6 +216,20 @@ export default function ProductsPage({ onRequireLogin, onCartChange }) {
               >
                 {busyProductId === product._id ? 'Adding...' : 'Add to cart'}
               </button>
+              <div className="product-actions">
+                <button className="ghost-button" type="button" onClick={() => onNavigate('product-detail', product._id)}>
+                  View details
+                </button>
+                <button
+                  className={`favorite-button ${favoriteIds.has(product._id) ? 'active' : ''}`}
+                  type="button"
+                  aria-pressed={favoriteIds.has(product._id)}
+                  onClick={() => toggleFavorite(product)}
+                  disabled={busyFavoriteId === product._id}
+                >
+                  {favoriteIds.has(product._id) ? 'Saved' : 'Save'}
+                </button>
+              </div>
             </div>
           </article>
         ))}

@@ -2,9 +2,11 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import AuthPage from './components/AuthPage.jsx'
 import CartPage from './components/CartPage.jsx'
 import ChatbotWidget from './components/ChatbotWidget.jsx'
+import FavoritesPage from './components/FavoritesPage.jsx'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import LogoutPage from './components/LogoutPage.jsx'
+import ProductDetailPage from './components/ProductDetailPage.jsx'
 import ProductsPage from './components/ProductsPage.jsx'
 import Toast from './components/Toast.jsx'
 import { bannerFallbackImage, bannerImage, features, productFilmId, specs, storyCards } from './data/landingData.js'
@@ -20,7 +22,7 @@ const Signup = lazy(() => import('./components/Signup.jsx'))
 const Specs = lazy(() => import('./components/Specs.jsx'))
 const Story = lazy(() => import('./components/Story.jsx'))
 
-const commerceViews = new Set(['login', 'logout', 'products', 'cart'])
+const commerceViews = new Set(['login', 'logout', 'products', 'product-detail', 'favorites', 'cart'])
 const authStorageKey = 'techgear_user'
 
 function readStoredUser() {
@@ -47,14 +49,25 @@ function getViewFromLocation() {
   return commerceViews.has(view) ? view : 'home'
 }
 
+function getProductIdFromLocation() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('product') || ''
+}
+
 function setViewInUrl(view, sectionId = 'top') {
   const url = new URL(window.location.href)
 
   if (view === 'home') {
     url.searchParams.delete('view')
+    url.searchParams.delete('product')
     url.hash = sectionId
   } else {
     url.searchParams.set('view', view)
+    if (view === 'product-detail') {
+      url.searchParams.set('product', sectionId)
+    } else {
+      url.searchParams.delete('product')
+    }
     url.hash = ''
   }
 
@@ -142,6 +155,7 @@ function createBehaviorEvent(type, label, detail = {}) {
 
 function App() {
   const [currentView, setCurrentView] = useState(getViewFromLocation)
+  const [productDetailId, setProductDetailId] = useState(getProductIdFromLocation)
   const [homeScrollTarget, setHomeScrollTarget] = useState(() => window.location.hash.replace('#', '') || 'top')
   const [forceHomeSections, setForceHomeSections] = useState(() => {
     const initialHash = window.location.hash.replace('#', '')
@@ -163,6 +177,7 @@ function App() {
 
   const navigate = useCallback((view, sectionId = 'top') => {
     setCurrentView(view)
+    setProductDetailId(view === 'product-detail' ? sectionId : '')
     setViewInUrl(view, sectionId)
 
     if (view === 'home') {
@@ -206,6 +221,7 @@ function App() {
   useEffect(() => {
     const onPopState = () => {
       setCurrentView(getViewFromLocation())
+      setProductDetailId(getProductIdFromLocation())
       setHomeScrollTarget(window.location.hash.replace('#', '') || 'top')
     }
 
@@ -489,13 +505,34 @@ function App() {
     if (currentView === 'products') {
       return (
         <ProductsPage
+          user={user}
           onCartChange={setCartCount}
+          onNavigate={navigate}
           onRequireLogin={() => {
             setToast('Please sign in to add products to your cart.')
             navigate('login')
           }}
         />
       )
+    }
+
+    if (currentView === 'product-detail') {
+      return (
+        <ProductDetailPage
+          productId={productDetailId}
+          user={user}
+          onCartChange={setCartCount}
+          onNavigate={navigate}
+          onRequireLogin={() => {
+            setToast('Please sign in to save favorite products.')
+            navigate('login')
+          }}
+        />
+      )
+    }
+
+    if (currentView === 'favorites') {
+      return <FavoritesPage onCartChange={setCartCount} onNavigate={navigate} />
     }
 
     if (currentView === 'cart') {
