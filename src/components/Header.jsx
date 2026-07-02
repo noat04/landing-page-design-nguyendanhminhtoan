@@ -36,7 +36,14 @@ export default function Header({ cartCount, currentView, theme, user, onNavigate
     { label: 'Specifications', onClick: () => handleHomeClick('specs') },
     { label: 'Design', onClick: () => handleHomeClick('story') },
     { label: 'Register', onClick: () => handleHomeClick('signup') },
-    { label: 'Products', onClick: () => handleNavigate('products'), current: currentView === 'products' },
+    {
+      label: 'Products',
+      onClick: () => handleNavigate('products'),
+      current: currentView === 'products' || currentView === 'product-detail',
+    },
+    ...(user
+      ? [{ label: 'Favorites', onClick: () => handleNavigate('favorites'), current: currentView === 'favorites' }]
+      : []),
     { label: `Cart${cartCount > 0 ? ` (${cartCount})` : ''}`, onClick: () => handleNavigate('cart'), current: currentView === 'cart' },
   ]
 
