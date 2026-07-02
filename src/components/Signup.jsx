@@ -38,7 +38,7 @@ export default function Signup({ form, formState, onFieldChange, onSubmit }) {
           {formState.type === 'loading' ? 'Sending...' : 'Notify me'}
         </button>
         <p className={`form-message ${formState.type}`}>
-          {formState.message || 'Secure webhook-ready validation.'}
+          {formState.message || 'Google Sheet-ready validation.'}
         </p>
       </form>
     </section>

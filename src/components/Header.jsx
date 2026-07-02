@@ -1,4 +1,5 @@
 ﻿import { useEffect, useId, useState } from 'react'
+import AppleLogo from './AppleLogo.jsx'
 
 export default function Header({ cartCount, currentView, theme, user, onNavigate, onToggleTheme, onTrackClick }) {
   const displayName = user?.name || user?.email
@@ -57,8 +58,10 @@ export default function Header({ cartCount, currentView, theme, user, onNavigate
   return (
     <header className={`site-header ${menuIsOpen ? 'menu-open' : ''}`}>
       <button className="brand brand-button" type="button" onClick={() => handleHomeClick()} aria-label="Techgear home">
-        <span className="brand-mark">18</span>
-        <span>Techgear</span>
+        <span className="brand-mark">
+          <AppleLogo />
+        </span>
+        <span>Iphone</span>
       </button>
       <nav className="desktop-nav" aria-label="Primary navigation">
         {renderNavItems()}
