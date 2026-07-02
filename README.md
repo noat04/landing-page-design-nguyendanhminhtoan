@@ -1,75 +1,86 @@
-# iPhone 18 Pro Concept Landing Page
+# Frontend - iPhone 18 Pro Concept Landing Page
 
-Landing page giới thiệu sản phẩm công nghệ theo phong cách premium, hiện đại và giàu trải nghiệm. Dự án được xây dựng với React + Vite, tập trung vào bố cục responsive, tối ưu hiệu năng, SEO technical, form đăng ký có thể gửi dữ liệu ra ngoài, dark mode, animation theo hành vi cuộn trang, chatbot tư vấn và một luồng thương mại điện tử mini.
+Frontend là landing page giới thiệu sản phẩm công nghệ theo phong cách hiện đại, cao cấp và responsive. Dự án chọn sản phẩm demo là iPhone 18 Pro Concept, tập trung vào hero section mạnh về thị giác, section tính năng, thông số kỹ thuật, form đăng ký nhận tin, animation khi cuộn, dark mode, chatbot và luồng thương mại điện tử mini.
 
-> Sản phẩm demo: iPhone 18 Pro concept - một landing page kể chuyện cho thiết bị thông minh cao cấp.
+## Công Nghệ Sử Dụng
 
-## Công nghệ sử dụng
-
-- React 19, Vite 8
-- CSS thuần theo component, responsive layout, CSS variables cho dark/light theme
+- React 19
+- Vite 8
+- CSS thuần theo component, CSS variables cho theme
 - GSAP + ScrollTrigger cho scroll animation và parallax nhẹ
-- `react-lite-youtube-embed` để nhúng video tối ưu
-- REST API-ready qua `VITE_API_BASE_URL`
-- Google Apps Script / Webhook-ready cho form đăng ký nhận tin
+- Three.js, React Three Fiber, Drei cho khả năng mở rộng 3D
+- `react-lite-youtube-embed` để nhúng video tối ưu hơn iframe thường
+- REST API helper qua `src/lib/api.js`
 
-## Tính năng chính
+## Tính Năng Chính
 
-- Hero section có ảnh sản phẩm tối ưu WebP, CTA đặt trước và CTA xem video.
-- Section video sản phẩm được lazy-load để giảm tải ban đầu.
-- Section tính năng nổi bật, thông số kỹ thuật và câu chuyện thiết kế.
-- Form đăng ký nhận tin có validate tên/email, trạng thái loading/success/error và gửi dữ liệu ra Google Sheet hoặc webhook.
-- Theo dõi hành vi người dùng: click CTA, submit form và mốc scroll 25%, 50%, 75%; hiển thị toast realtime.
-- Dark mode / light mode bằng CSS variables.
-- Responsive cho desktop, tablet và mobile.
-- SEO technical: title, meta description, Open Graph, Twitter card, favicon, theme color.
-- Mini commerce: đăng nhập/đăng ký, danh sách sản phẩm, tìm kiếm/sắp xếp, chi tiết sản phẩm, yêu thích, giỏ hàng, cập nhật số lượng.
-- Chatbot ở góc màn hình, sẵn sàng kết nối API `/api/chatbot/message`.
+- Hero section có hình sản phẩm, thông điệp chính và CTA rõ ràng.
+- Section video sản phẩm được lazy-load.
+- Section tính năng nổi bật lấy dữ liệu từ `src/data/landingData.js`.
+- Section thông số kỹ thuật.
+- Section kể chuyện sản phẩm theo dạng scrollytelling.
+- Form đăng ký nhận tin có validate tên/email, loading, success và error state.
+- Có thể gửi dữ liệu form về Google Sheet hoặc webhook thật.
+- Theo dõi hành vi người dùng: click CTA, submit form và mốc scroll 25%, 50%, 75%.
+- Toast realtime hiển thị sự kiện tương tác.
+- Dark mode / light mode.
+- Responsive desktop, tablet và mobile.
+- SEO technical trong `index.html`: title, description, Open Graph, Twitter card, favicon, theme color.
+- Mini commerce: đăng ký, đăng nhập, danh sách sản phẩm, chi tiết sản phẩm, yêu thích và giỏ hàng.
+- Chatbot tư vấn sản phẩm ở góc màn hình, gọi API `/api/chatbot/message`.
 
-## Đáp ứng yêu cầu đề bài
+## Đáp Ứng Yêu Cầu Đề Bài
 
-| Yêu cầu | Cách triển khai trong dự án |
+| Yêu cầu | Cách triển khai |
 | --- | --- |
-| Hero Section | `src/components/Hero.jsx` với ảnh sản phẩm, thông điệp chính và CTA |
-| Tính năng nổi bật | `src/components/Features.jsx`, dữ liệu từ `src/data/landingData.js` |
+| Hero Section | `src/components/Hero.jsx` |
+| Tính năng nổi bật | `src/components/Features.jsx`, dữ liệu trong `src/data/landingData.js` |
 | Thông số kỹ thuật | `src/components/Specs.jsx` |
-| Form đăng ký nhận tin | `src/components/Signup.jsx`, xử lý validate và submit trong `src/App.jsx` |
-| Responsive | CSS trong `index.html`, `src/styles/*.css`, breakpoint cho mobile/tablet |
-| Performance | Lazy-load section bằng `IntersectionObserver`, dynamic import component, WebP image, preload hero image, lite YouTube embed |
-| SEO | Meta tags trong `index.html` gồm Title, Description, Open Graph, Twitter Card |
-| Dữ liệu bên ngoài | Google Sheet hoặc webhook qua biến môi trường |
-| Dark Mode | Toggle theme trong `Header.jsx`, gắn `data-theme` lên `documentElement` |
-| Scroll animation / Parallax | GSAP + ScrollTrigger được import khi người dùng tương tác |
-| Scrollytelling | `Story.jsx` với card tương tác và hiệu ứng reveal |
-| Mini e-commerce | Các trang `ProductsPage`, `ProductDetailPage`, `FavoritesPage`, `CartPage`, `AuthPage` |
-| Chatbot | `ChatbotWidget.jsx`, gọi backend endpoint `/api/chatbot/message` |
+| Form đăng ký nhận tin | `src/components/Signup.jsx`, xử lý trong `src/App.jsx` |
+| Responsive | `src/styles/*.css` và critical CSS trong `index.html` |
+| Performance mobile | WebP image, preload hero image, lazy section, dynamic import, lite YouTube |
+| SEO Technical | Meta title, description, Open Graph, Twitter card trong `index.html` |
+| Kết nối dữ liệu ngoài | `VITE_API_BASE_URL`, `VITE_GOOGLE_SHEETS_WEB_APP_URL`, `VITE_WEBHOOK_URL` |
+| Dark Mode | Toggle trong `Header.jsx`, theme bằng `data-theme` |
+| Scroll Animation | GSAP + ScrollTrigger được tải sau tương tác đầu tiên |
+| Scrollytelling | `src/components/Story.jsx` |
+| Mini commerce | `ProductsPage`, `ProductDetailPage`, `FavoritesPage`, `CartPage`, `AuthPage` |
+| Chatbot | `src/components/ChatbotWidget.jsx` |
 
-## Cấu trúc thư mục
+## Cấu Trúc Thư Mục
 
 ```text
 src/
-  components/        UI sections, commerce pages, chatbot, toast
-  data/              Landing page content
-  lib/               API helper, auth token, format price
-  styles/            CSS theo từng nhóm giao diện
-  App.jsx            Điều hướng view, theme, tracking, newsletter submit
+  App.jsx                 Điều hướng view, theme, tracking, newsletter submit
+  main.jsx                Entry point React
+  lib/api.js              API helper, token, format tiền, fallback ảnh
+  data/landingData.js     Nội dung landing page
+  components/             Header, Hero, Features, Specs, Story, Signup, commerce pages, chatbot
+  styles/                 CSS chia theo nhóm giao diện
+  assets/                 Asset dùng trong source
 public/
-  fonts/             Font local dùng font-display: swap
-  iphone.webp        Ảnh hero tối ưu
-  favicon.svg
-index.html           SEO meta, preload asset, critical CSS
+  fonts/                  Font local dùng font-display: swap
+  iphone.webp             Ảnh hero tối ưu
+  iphone.png              Fallback image
+  og-image.svg            Open Graph image
+  favicon.svg             Favicon
+index.html                SEO meta, preload asset, critical CSS
+vite.config.js            Vite config và proxy API local
 ```
 
-## Cài đặt và chạy local
+## Cài Đặt Và Chạy Local
 
-Yêu cầu: Node.js 20+.
+Yêu cầu:
+
+- Node.js 20+
+- Backend chạy ở `http://localhost:4000` nếu muốn dùng auth, cart, favorites, products và chatbot.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Ứng dụng mặc định chạy tại:
+Frontend mặc định chạy tại:
 
 ```text
 http://localhost:3000
@@ -79,6 +90,11 @@ Build production:
 
 ```bash
 npm run build
+```
+
+Preview production build:
+
+```bash
 npm run preview
 ```
 
@@ -88,72 +104,36 @@ Kiểm tra lint:
 npm run lint
 ```
 
-## Biến môi trường
+## Biến Môi Trường
 
-Tạo file `.env` ở thư mục gốc nếu cần kết nối dữ liệu thật:
+Tạo file `.env` ở thư mục frontend nếu cần kết nối dữ liệu thật:
 
 ```bash
-VITE_API_BASE_URL=https://your-backend-domain.com
-VITE_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
-VITE_WEBHOOK_URL=https://your-webhook-url.com
+VITE_API_BASE_URL=http://localhost:4000
+VITE_GOOGLE_SHEETS_WEB_APP_URL=
+VITE_WEBHOOK_URL=
 ```
 
-Ghi chú:
+Ý nghĩa:
 
-- `VITE_API_BASE_URL`: backend REST API cho auth, products, favorites, cart và chatbot.
-- `VITE_GOOGLE_SHEETS_WEB_APP_URL`: ưu tiên dùng cho newsletter form nếu được cấu hình.
-- `VITE_WEBHOOK_URL`: fallback webhook nếu không dùng Google Sheet.
-- Nếu không cấu hình Google Sheet hoặc webhook, form vẫn validate và hiển thị trạng thái demo thành công.
+- `VITE_API_BASE_URL`: domain backend REST API. Khi chạy local có thể để trống vì Vite đã proxy `/api` sang `http://localhost:4000`.
+- `VITE_GOOGLE_SHEETS_WEB_APP_URL`: URL Google Apps Script Web App để lưu form đăng ký vào Google Sheet.
+- `VITE_WEBHOOK_URL`: webhook fallback nếu không dùng Google Sheet.
 
-## Kết nối Google Sheet cho form đăng ký
+Nếu không cấu hình Google Sheet hoặc webhook, form vẫn validate và hiển thị trạng thái demo thành công.
 
-Tạo Google Sheet với các cột:
+## Kết Nối Backend
 
-```text
-Submitted At | Name | Email | Source | Page URL | User Agent
-```
+Frontend gọi API thông qua `src/lib/api.js`.
 
-Trong `Extensions > Apps Script`, thêm script:
-
-```js
-const SHEET_NAME = 'Sheet1'
-
-function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME)
-  const data = JSON.parse(e.postData.contents || '{}')
-
-  sheet.appendRow([
-    data.submittedAt || new Date().toISOString(),
-    data.name || '',
-    data.email || '',
-    data.source || '',
-    data.pageUrl || '',
-    data.userAgent || '',
-  ])
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true }))
-    .setMimeType(ContentService.MimeType.JSON)
-}
-```
-
-Deploy Apps Script dưới dạng `Web app`:
-
-- Execute as: `Me`
-- Who has access: `Anyone`
-
-Sau đó copy Web App URL vào `VITE_GOOGLE_SHEETS_WEB_APP_URL` và restart Vite.
-
-## Backend API kỳ vọng
-
-Frontend đã sẵn sàng gọi các endpoint sau:
+Các endpoint backend đang được frontend sử dụng:
 
 ```text
 POST   /api/auth/register
 POST   /api/auth/login
 GET    /api/auth/me
 GET    /api/products
-GET    /api/products/:id
+GET    /api/products/:idOrSlug
 GET    /api/favorites
 POST   /api/favorites/:productId
 DELETE /api/favorites/:productId
@@ -165,34 +145,119 @@ DELETE /api/cart
 POST   /api/chatbot/message
 ```
 
-Khi chạy local, Vite proxy `/api` sang `http://localhost:4000` theo cấu hình trong `vite.config.js`.
+Khi chạy local, `vite.config.js` có proxy:
 
-## Tối ưu hiệu năng
+```text
+/api -> http://localhost:4000
+```
 
-- Hero image dùng WebP, có fallback PNG, kích thước cố định và `fetchPriority="high"`.
+## Form Đăng Ký Nhận Tin
+
+Form trong `Signup.jsx` nhận:
+
+- Họ tên từ 2 đến 80 ký tự.
+- Email đúng định dạng và tối đa 120 ký tự.
+
+Payload gửi ra ngoài gồm:
+
+```json
+{
+  "name": "Nguyen Van A",
+  "email": "user@example.com",
+}
+```
+
+Gợi ý Google Sheet columns:
+
+```text
+Submitted At | Name | Email | Source | Page URL | User Agent
+```
+
+## Tối Ưu Hiệu Năng
+
+Dự án đã có các tối ưu phù hợp mục tiêu Google PageSpeed Insights Mobile từ 85/100 trở lên:
+
+- Ảnh hero dùng WebP và có fallback PNG.
 - Preload ảnh hero trong `index.html`.
-- Lazy-load các section bên dưới fold bằng `IntersectionObserver`.
+- Font local `.woff2` dùng `font-display: swap`.
+- Lazy-load các section dưới fold bằng `IntersectionObserver`.
 - Dynamic import cho Features, Specs, Story, Signup, Footer, ProductFilm.
-- GSAP/ScrollTrigger chỉ được tải sau tương tác đầu tiên của người dùng.
-- Video YouTube dùng lite embed thay vì iframe nặng ngay từ đầu.
-- Font local dùng `font-display: swap`.
+- GSAP/ScrollTrigger chỉ tải sau khi người dùng scroll, click hoặc bấm phím.
+- Video YouTube dùng lite embed.
+- CSS quan trọng cho hero/header đặt sớm trong `index.html` để cải thiện first paint.
 
-## Triển khai
+## SEO Technical
 
-Dự án phù hợp deploy lên Vercel, Netlify hoặc Cloudflare Pages.
+Đã cấu hình trong `index.html`:
+
+- `<title>`
+- Meta description
+- Open Graph type/title/description/image/url
+- Twitter card/title/description
+- Favicon
+- Theme color
+- Viewport
+
+Khi deploy production, nên cập nhật:
+
+- `og:url` thành domain thật.
+- `og:image` thành URL tuyệt đối nếu nền tảng deploy yêu cầu.
+- Description theo đúng sản phẩm cuối cùng nếu đổi khỏi iPhone 18 Pro Concept.
+
+## Điều Hướng Nội Bộ
+
+Ứng dụng dùng query string để chuyển view mà không cần router package:
+
+```text
+/?view=products
+/?view=product-detail&product=:idOrSlug
+/?view=favorites
+/?view=cart
+/?view=login
+/?view=logout
+```
+
+Các section landing page dùng anchor:
+
+```text
+#top
+#features
+#specs
+#signup
+```
+
+## Deploy Frontend
+
+Có thể deploy lên Vercel, Netlify hoặc Cloudflare Pages.
 
 Thiết lập build:
 
 ```text
+Root directory: landing-page-design-nguyendanhminhtoan
 Build command: npm run build
 Output directory: dist
 ```
 
-Khi deploy production, thêm các biến môi trường cần thiết trong dashboard của nền tảng deploy.
+Biến môi trường production nên cấu hình:
 
-## Ghi chú khi chấm bài
+```bash
+VITE_API_BASE_URL=https://your-backend-domain.com
+VITE_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+VITE_WEBHOOK_URL=https://your-webhook-url.com
+```
 
-- Landing page vẫn hoạt động độc lập khi chưa có backend.
-- Các chức năng commerce và chatbot cần backend tương thích với các endpoint ở trên.
-- Form newsletter có thể gửi Google Sheet hoặc webhook thật nếu cấu hình biến môi trường.
-- Dự án đã có sẵn `npm run build` để kiểm tra production bundle trước khi deploy.
+Nếu deploy frontend và backend khác domain, cần thêm domain frontend vào `CLIENT_ORIGIN` của backend.
+
+## Checklist Trước Khi Nộp
+
+- Chạy `npm run build` để đảm bảo build production thành công.
+- Chạy `npm run lint` để kiểm tra code style.
+- Kiểm tra desktop và mobile bằng DevTools responsive mode.
+- Kiểm tra form đăng ký với email hợp lệ và không hợp lệ.
+- Kiểm tra chatbot khi backend đang chạy.
+- Kiểm tra login, danh sách sản phẩm, yêu thích và giỏ hàng sau khi seed dữ liệu backend.
+- Chạy Lighthouse/PageSpeed với bản deploy production.
+
+## Ghi Chú Nộp Bài
+
+Frontend vẫn hoạt động như một landing page độc lập khi chưa có backend. Các chức năng mini commerce và chatbot sẽ hoạt động đầy đủ khi backend được cấu hình bằng `VITE_API_BASE_URL` hoặc proxy local `/api`.
