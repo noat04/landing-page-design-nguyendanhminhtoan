@@ -1,6 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AuthPage from './components/AuthPage.jsx'
 import CartPage from './components/CartPage.jsx'
+import ChatbotWidget from './components/ChatbotWidget.jsx'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import LogoutPage from './components/LogoutPage.jsx'
@@ -538,6 +539,7 @@ function App() {
         onTrackClick={trackClick}
       />
       {renderCurrentView()}
+      <ChatbotWidget />
     </main>
   )
 }
