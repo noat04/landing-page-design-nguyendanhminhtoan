@@ -226,9 +226,15 @@ Các section landing page dùng anchor:
 #signup
 ```
 
-## Deploy Frontend
+## Deploy
 
-Có thể deploy lên Vercel, Netlify hoặc Cloudflare Pages.
+Link chạy thực tế:
+
+| Thành phần | Nền tảng | URL |
+| --- | --- | --- |
+| Frontend | Vercel | `https://landing-page-design-nguyendanhminht.vercel.app/` |
+| Backend | Render | `https://landing-page-be-nguyendanhminhtoan.onrender.com` |
+
 
 Thiết lập build:
 
@@ -241,19 +247,19 @@ Output directory: dist
 Biến môi trường production nên cấu hình:
 
 ```bash
-VITE_API_BASE_URL=https://your-backend-domain.com
+VITE_API_BASE_URL=https://landing-page-be-nguyendanhminhtoan.onrender.com
 VITE_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
 VITE_WEBHOOK_URL=https://your-webhook-url.com
 ```
 
-Nếu deploy frontend và backend khác domain, cần thêm domain frontend vào `CLIENT_ORIGIN` của backend.
+Nếu deploy frontend và backend khác domain, cần thêm domain frontend `https://landing-page-design-nguyendanhminht.vercel.app` vào `CLIENT_ORIGIN` của backend.
 
 ## Minh Chứng Giao Diện Và PageSpeed
 
 Link triển khai production:
 
 ```text
-https://landing-page-design-nguyendanhminhtoan.vercel.app
+https://landing-page-design-nguyendanhminht.vercel.app/
 ```
 
 Các ảnh minh chứng nên được lưu trong thư mục `docs/screenshots/` để hiển thị trực tiếp trên GitHub.
@@ -294,7 +300,7 @@ Thông tin báo cáo:
 
 | Hạng mục | Kết quả |
 | --- | --- |
-| URL kiểm tra | `https://landing-page-design-nguyendanhminhtoan.vercel.app/` |
+| URL kiểm tra | `https://landing-page-design-nguyendanhminht.vercel.app/` |
 | Thiết bị | Mobile |
 | Thời gian báo cáo | Jul 2, 2026, 11:30:41 PM |
 | Performance | 96 |
